@@ -12,8 +12,8 @@ Findings from profiling `de_raw`, and the decision taken for each. Profiling que
 | 4 | Responses timestamped outside their sitting's start/finish window | 1,608 rows, all within 1 minute | Clock or rounding noise; keep |
 | 5 | Incomplete sittings | 13 sittings: `is_complete = false`, which are exactly the 13 with null `finished_at` | Exclude; an abandoned test is not a valid measure |
 | 6 | Sittings with no responses | 79 | No effect on scores; ignore |
-| 7 | Sittings with more responses than `total_questions` | 747 sittings (10 have fewer, 1,673 equal) | Investigate repeated answers to the same question in one sitting (see #8) |
-| 8 | Repeated answers to the same question within a sitting | _pending: query G_ | _pending_ |
+| 7 | Sittings with more responses than `total_questions` | 747 sittings (10 have fewer, 1,673 equal) | Explained by repeat answers within a sitting (#8) |
+| 8 | Repeated answers to the same question within a sitting | 2,082 question-sitting pairs answered 2–5 times; in 965 of them the pupil's correctness changed between attempts. No question is ever answered across two different sittings by the same pupil | Keep the latest answer per sitting and question (the pupil's final answer, as in a real test). 2,158 superseded answers excluded |
 | 9 | "No attempt" responses | 3,279 rows | Count as incorrect, as an unanswered SATs question scores 0 |
 | 10 | Survey sittings | 125 sittings (Wellbeing) | Exclude; not an assessment |
 | 11 | Year groups 11, 14 and 15 on some sittings | 25 sittings | None are Maths or English, so they don't affect SATs scores. Logged as a source anomaly |
@@ -22,7 +22,7 @@ Findings from profiling `de_raw`, and the decision taken for each. Profiling que
 ## Scoring decisions
 
 - **Subjects in scope.** KS2 SATs cover Reading, Grammar/Punctuation/Spelling (GPS) and Maths. Only `Maths` and `English` map to them. Science (not a scaled-score SATs test), Verbal and Non-Verbal Reasoning, Screeners and Wellbeing are out of scope.
-- **English mapping.** The hierarchy holds IDs only, so English can't be split into Reading and GPS. English is scored against the KS2 Reading table. _Confirm with Atom._
+- **English mapping.** The hierarchy holds IDs only, so English can't be split into Reading and GPS. English is scored against the KS2 Reading table. Confirmed with Atom (George, via Carmen) as a good approach.
 - **Method.** Percentage correct × the paper's maximum raw mark gives an equivalent raw mark (rounded), which is looked up in the official 2025 GOV.UK conversion table (`seed_sats_conversion`).
 - **Below the official minimum.** Raw marks 0–2 have no official scaled score. They are floored to 80 and flagged, because the brief asks for a score for every pupil.
 - **Year groups.** Pupils in Years 1–6 all receive a SATs-equivalent score: "what this performance would convert to on the KS2 scale". This is a projection for younger pupils, not a prediction.
